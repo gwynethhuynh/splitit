@@ -12,6 +12,7 @@ class ReceiptSerializer(serializers.ModelSerializer):
         model = Receipt
         fields = ('id', 'tax', 'total', 'items')
 
+
     # def create(self, validated_data):
     #     print("Hello")
     #     items_data = validated_data.pop('items')
