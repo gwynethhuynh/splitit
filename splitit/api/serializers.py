@@ -10,8 +10,12 @@ class ItemSerializer(serializers.ModelSerializer):
 class ReceiptSerializer(serializers.ModelSerializer):
     class Meta:
         model = Receipt
-        fields = ('id', 'tax', 'total', 'items')
+        fields = ('id', 'tax', 'total')
 
+class CreateReceiptSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Receipt
+        fields = ('tax', 'total')
 
     # def create(self, validated_data):
     #     print("Hello")
