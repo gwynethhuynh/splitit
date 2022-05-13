@@ -17,7 +17,7 @@ export default class HomePage extends Component {
         return (
         <BrowserRouter>
             <Routes>
-                <Route exact path='/' element={<p>DThis is the homePage</p>}></Route>;
+                <Route exact path='/' element={<p>Thi s is the homePage</p>}></Route>;
                 <Route path='/hello' element={<ReceiptItemsPage/>}></Route>
                 <Route path='/add' element={<AddReceiptPage/>}></Route>
             </Routes>
