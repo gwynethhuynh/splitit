@@ -28,17 +28,17 @@ export default class AddReceiptPage extends Component {
         this.setState({ selectedFile: event.target.files[0] });
     };
 
-    handleFileUpload = () => {
-        const requestOptions = {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json'},
-            body: JSON.stringify({
-                tax: 1.00,
-                total: 2.00
-            }),
-        };
-        fetch('/api/create/', requestOptions).then((response) => response.json()).then((data) => console.log(data));
-    };
+    // handleFileUpload = () => {
+    //     const requestOptions = {
+    //         method: 'POST',
+    //         headers: { 'Content-Type': 'application/json'},
+    //         body: JSON.stringify({
+    //             tax: 1.00,
+    //             total: 2.00
+    //         }),
+    //     };
+    //     fetch('/api/create/', requestOptions).then((response) => response.json()).then((data) => console.log(data));
+    // };
 
     onFileUpload = () => {
         const formData = new FormData();

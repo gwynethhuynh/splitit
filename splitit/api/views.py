@@ -19,11 +19,17 @@ class CreateReceiptView(APIView):
 
      # @Override
     def post(self, request, format=None):
-        # print("Request data", request.FILES['myFile'])
-        # parsed = ReceiptParser.parseImage(request.FILES['myFile'])
-        parsed = {'tax': 3.00, 'total': 6.00, 'items': [{"chicken": 1.00}]}
+        filepath = request.FILES.get('myFile', False)
+        if filepath:
+            print("Request data", request.FILES['myFile'])
+            parsed = ReceiptParser.parseImage(request.FILES['myFile'])
+        else:
+            print("-------->")
+            print(request.data)
+            parsed = request.data
+            # parsed = {'tax': 10.00, 'total': 12.00, 'items': [{"chicken": 1.00}]}
         print(parsed)
-        #receiptFields = {'tax': parsed['tax'], 'total': parsed['total']}
+        # receiptFields = {'tax': parsed['tax'], 'total': parsed['total']}
         serializer = self.serializer_class(data=parsed)
         print(serializer)
         if serializer.is_valid():
