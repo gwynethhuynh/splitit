@@ -13,18 +13,17 @@ class ReceiptView(generics.CreateAPIView):
     queryset = Receipt.objects.all()
     serializer_class = ReceiptSerializer
 
-class GetItems(APIView):
-    serializer_class = ItemSerializer
+
+class GetReceiptView(APIView):
+    serializer_class = ReceiptSerializer
     lookup_url_kwarg = 'receipt'
 
     def get(self, request, format=None):
         receiptId = request.GET.get(self.lookup_url_kwarg)
-        print(request.GET)
         if receiptId:
-            items = Item.objects.filter(receipt=receiptId)
-            serialized_items = self.serializer_class(items, many=True)
-            # if serialized_items.is_valid():
-            return Response(serialized_items.data, status=status.HTTP_200_OK)
+            receipt = Receipt.objects.get(pk=receiptId) # TODO: try catch if not found
+            serializer = self.serializer_class(receipt)
+            return Response(serializer.data, status=status.HTTP_200_OK)
             # else:
             #     print(serialized_items.errors)
             #     return Response({'Message': 'Invalid Items'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

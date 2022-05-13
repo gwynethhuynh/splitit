@@ -9,9 +9,11 @@ class ReceiptParser():
     def parseTest(parsed):
         parsed = [
             ('6 Wings', '$6.99'),
-            ('Subtotal', '$6.99'),
-            ('Tax', '$0.44'),
-            ('Total', '$7.43'),
+            ('Kai mousse', '$9.99'),
+            ('Gwyneth dango', '$14.49'),
+            ('Subtotal', '$31.97'),
+            ('Tax', '$1.44'),
+            ('Total', '$33.41'),
             ('Amount Paid', '$7.43'),
             ('$1.50 18% -', '$1.80'),
             ('20% $2.00 25% -', '$2.50')
