@@ -20,11 +20,24 @@ export default class AddReceiptPage extends Component {
         };
         this.onFileChange = this.onFileChange.bind(this);
         this.onFileUpload = this.onFileUpload.bind(this);
+        this.handleFileUpload = this.handleFileUpload.bind(this);
     };
 
     // On file select (from the pop up)
     onFileChange = event => {
         this.setState({ selectedFile: event.target.files[0] });
+    };
+
+    handleFileUpload = () => {
+        const requestOptions = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                tax: 1.00,
+                total: 2.00
+            }),
+        };
+        fetch('/api/create/', requestOptions).then((response) => response.json()).then((data) => console.log(data));
     };
 
     onFileUpload = () => {
@@ -41,7 +54,7 @@ export default class AddReceiptPage extends Component {
         //  axios.post("api/uploadfile", formData);
         console.log(formData);
         axios
-          .post("/api/receipts/", formData)
+          .post("/api/create/", formData)
           .then((res) => console.log(res))
           .catch((err) => console.log(err));
         // axios

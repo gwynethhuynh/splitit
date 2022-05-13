@@ -18,10 +18,10 @@ class CreateReceiptView(APIView):
     serializer_class = CreateReceiptSerializer
 
      # @Override
-    def create(self, request):
-        print("Request data", request.FILES['myFile'])
+    def post(self, request, format=None):
+        # print("Request data", request.FILES['myFile'])
         # parsed = ReceiptParser.parseImage(request.FILES['myFile'])
-        parsed = {'tax': 1.00, 'total': 2.00, 'items': [{"chicken": 1.00}]}
+        parsed = {'tax': 3.00, 'total': 6.00, 'items': [{"chicken": 1.00}]}
         print(parsed)
         #receiptFields = {'tax': parsed['tax'], 'total': parsed['total']}
         serializer = self.serializer_class(data=parsed)
