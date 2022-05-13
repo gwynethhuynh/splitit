@@ -32,10 +32,15 @@ class CreateReceiptView(APIView):
         # receiptFields = {'tax': parsed['tax'], 'total': parsed['total']}
         serializer = self.serializer_class(data=parsed)
         print(serializer)
-        if serializer.is_valid():
-            tax = serializer.data.get('tax')
-            total = serializer.data.get('total')
+        s_is_valid = serializer.is_valid()
+        print("s_is_valid", s_is_valid, serializer.errors)
+        if s_is_valid:
+            # tax = serializer.data.get('tax')
+            # total = serializer.data.get('total')
             # items = serializer.data.get('items')
-            receipt = Receipt(tax=tax, total=total)
-            receipt.save()
-        return Response(ReceiptSerializer(receipt).data, status=status.HTTP_201_CREATED)
+            serializer.save()
+            # receipt = Receipt(tax=tax, total=total)
+            # receipt.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        # return Response(ReceiptSerializer(receipt).data, status=status.HTTP_201_CREATED)
+
