@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework import generics, status
-from .models import Receipt
-from .serializers import ReceiptSerializer, CreateReceiptSerializer
+from .models import Receipt, Item
+from .serializers import ItemSerializer, ReceiptSerializer, CreateReceiptSerializer
 from .receipt_parser import ReceiptParser
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -12,6 +12,26 @@ from rest_framework.response import Response
 class ReceiptView(generics.CreateAPIView):
     queryset = Receipt.objects.all()
     serializer_class = ReceiptSerializer
+
+class GetItems(APIView):
+    serializer_class = ItemSerializer
+    lookup_url_kwarg = 'receipt'
+
+    def get(self, request, format=None):
+        receiptId = request.GET.get(self.lookup_url_kwarg)
+        print(request.GET)
+        if receiptId:
+            items = Item.objects.filter(receipt=receiptId)
+            serialized_items = self.serializer_class(items, many=True)
+            # if serialized_items.is_valid():
+            return Response(serialized_items.data, status=status.HTTP_200_OK)
+            # else:
+            #     print(serialized_items.errors)
+            #     return Response({'Message': 'Invalid Items'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        return Response({'Message' : 'Receipt ID is required'}, status=status.HTTP_400_BAD_REQUEST)
+           
+
 
 
 class CreateReceiptView(APIView):
@@ -27,20 +47,9 @@ class CreateReceiptView(APIView):
             print("-------->")
             print(request.data)
             parsed = request.data
-            # parsed = {'tax': 10.00, 'total': 12.00, 'items': [{"chicken": 1.00}]}
         print(parsed)
-        # receiptFields = {'tax': parsed['tax'], 'total': parsed['total']}
         serializer = self.serializer_class(data=parsed)
-        print(serializer)
-        s_is_valid = serializer.is_valid()
-        print("s_is_valid", s_is_valid, serializer.errors)
-        if s_is_valid:
-            # tax = serializer.data.get('tax')
-            # total = serializer.data.get('total')
-            # items = serializer.data.get('items')
+        if serializer.is_valid():
             serializer.save()
-            # receipt = Receipt(tax=tax, total=total)
-            # receipt.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
-        # return Response(ReceiptSerializer(receipt).data, status=status.HTTP_201_CREATED)
 
