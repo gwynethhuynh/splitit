@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { render } from "react-dom";
 import HomePage from "./HomePage";
+import Grid from "@material-ui/core/Grid";
 
 
 
@@ -14,9 +15,13 @@ export default class App extends Component {
 
     render() {
         return (
-        <div>
-            <HomePage/>
-        </div>
+        <Grid container>
+            <Grid item xs={12}>
+                <HomePage/>
+            </Grid>
+            
+        </Grid>
+            
         );
     }
 

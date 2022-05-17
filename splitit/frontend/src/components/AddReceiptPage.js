@@ -51,28 +51,20 @@ export default class AddReceiptPage extends Component {
         if (this.state.selectedFile) {
             
         return (
-            <Grid>
             <Grid item xs={12} align="center">
-                <Typography component="h8" variant='h8'>
+                {/* <Typography component="h8" variant='h8'>
                     File Details:
-                </Typography>
-            </Grid>
-            <Grid item xs={12} align="center">
+                </Typography> */}
                 <Typography component="h8" variant='h8'>
                     File Name: {this.state.selectedFile.name}
                 </Typography>
-            </Grid>
-            <Grid item xs={12} align="center">
-                <Typography component="h8" variant='h8'>
+                {/* <Typography component="h8" variant='h8'>
                     File Type: {this.state.selectedFile.type}
                 </Typography>
-            </Grid>
-            <Grid item xs={12} align="center">
                 <Typography component="h8" variant='h8'>
                     Last Modified: {" "}
                     {this.state.selectedFile.lastModifiedDate.toDateString()}
-                </Typography>
-            </Grid>
+                </Typography> */}
             </Grid>
             );
         } else {
