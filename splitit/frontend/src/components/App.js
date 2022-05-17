@@ -18,8 +18,7 @@ export default class App extends Component {
         <Grid container>
             <Grid item xs={12}>
                 <HomePage/>
-            </Grid>
-            
+            </Grid>     
         </Grid>
             
         );
