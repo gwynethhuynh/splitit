@@ -39,27 +39,37 @@ class ReceiptItemsPage extends Component {
 
     }
 
-    updateReceiptDetails = (id, data) => {
+    updateReceipt = (e) => {
+        e.preventDefault();
+        console.log("Hello World!");
+        console.log(this.state);
+        let data = {
+            items: this.state.items,
+            tax: this.state.tax,
+            total: this.state.total,
+        }
         axios
-            .put('/api/get-receipt' + '?receipt=' + this.id, {
-                tax: data.tax,
-                total: data.total
-            })
+            .put('/api/put-receipt/' + '?receipt=' + this.receiptId, data)
             .then(response => {
                 console.log(response);
             })
-            .catch(error => {
+            .catch(err => {
                 console.log(err);
             });
     }
 
-    updateItemDetails = (data) => {
-
+    updateDishName = (index, name) => {
+        let newItems = JSON.parse(JSON.stringify(this.state.items));
+        newItems[index].name = name;
+        this.setState({items: newItems});
     }
 
-    onSubmit = (data) => {
-
+    updateDishPrice = (index, price) => {
+        let newItems = JSON.parse(JSON.stringify(this.state.items));
+        newItems[index].price = price;
+        this.setState({items: newItems});
     }
+
 
     
 
@@ -73,55 +83,67 @@ class ReceiptItemsPage extends Component {
                         Receipt {this.receiptId}
                     </Typography>
                 </Grid>
-                    <Grid item xs={12} align="center">
-                        <form>
+                <Grid item xs={12} align="center">
+                    <form>
+                        <Grid item xs={12} align="center">
+                        {this.state.items.map(({ name, price }, index) => (
                             <Grid item xs={12} align="center">
-                            {this.state.items.map(({ name, price }) => (
-                                <Grid item xs={12} align="center">
-                                    <Grid container>
-                                        <Grid item xs={12} align="center">
-                                            <Typography key={name} gutterBottom> Dish {name} costs {price}.</Typography> 
-                                        </Grid>
-                                        <Grid item xs={12} align="center">
-                                
-                                                <TextField 
-                                                required
-                                                label="Dish Name" 
-                                                variant="outlined" 
-                                                defaultValue={name}
-                                                // onChange ={() => setTitle(e.target.value)}
-                                                />
-                                                <TextField 
-                                                    required
-                                                    label="Dish Price" 
-                                                    variant="outlined" 
-                                                    defaultValue={price} 
-                                                    type="number"
-                                                    /* TODO: Restrict input to 2 decimal places */
-                                                />
-                                        </Grid>   
+                                <Grid container>
+                                    <Grid item xs={12} align="center">
+                                        <Typography key={name} gutterBottom> Dish {name} costs {price}.</Typography> 
                                     </Grid>
+                                    <Grid item xs={12} align="center">
+                                        <TextField 
+                                            required
+                                            label="Dish Name" 
+                                            variant="outlined" 
+                                            defaultValue={name}
+                                            onChange ={(e) => this.updateDishName(index, e.target.value)}
+                                        />
+                                        <TextField 
+                                            required
+                                            label="Dish Price" 
+                                            variant="outlined" 
+                                            defaultValue={price} 
+                                            type="number"
+                                            /* TODO: Restrict input to 2 decimal places */
+                                            onChange ={(e) => this.updateDishPrice(index, e.target.value)}
+                                        />
+                                    </Grid>   
                                 </Grid>
-                                ))}       
                             </Grid>
+                            ))}       
+                        </Grid>
                         <Grid item xs={12} align="center">
                             <Typography>
                                 Tax: {this.state.tax}
                             </Typography>
+                            <TextField 
+                                required
+                                label="Tax" 
+                                variant="outlined" 
+                                value={this.state.tax}
+                                onChange ={(e) => this.setState({tax: e.target.value})}
+                            />
                         </Grid>
                         <Grid item xs={12} align="center">
                             <Typography>
                             Total: {this.state.total}
                             </Typography>
+                            <TextField 
+                                required
+                                label="Total" 
+                                variant="outlined" 
+                                value={this.state.total}
+                                onChange ={(e) => this.setState({total: e.target.value})}
+                            />
                         </Grid>
                         <Button
                             type="submit"
                             color="primary"
-                            // onClick={() => {
-                            //     this.setState({})
-                            // }}
+                            onClick={this.updateReceipt}
                         >
-                           Submit 
+                           Update 
                         </Button>
                     </form>
                 </Grid>

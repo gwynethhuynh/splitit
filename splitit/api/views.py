@@ -1,10 +1,11 @@
 from django.shortcuts import render
 from rest_framework import generics, status
 from .models import Receipt, Item
-from .serializers import ItemSerializer, ReceiptSerializer, CreateReceiptSerializer
+from .serializers import ItemSerializer, ReceiptSerializer, CreateReceiptSerializer, PutReceiptSerializer
 from .receipt_parser import ReceiptParser
 from rest_framework.views import APIView
 from rest_framework.response import Response
+import json
 
 # Create your views here.
 
@@ -29,7 +30,29 @@ class GetReceiptView(APIView):
             #     return Response({'Message': 'Invalid Items'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         return Response({'Message' : 'Receipt ID is required'}, status=status.HTTP_400_BAD_REQUEST)
-           
+
+    # def put(self, request, )
+
+
+class PutReceiptView(APIView):
+    serializer_class = PutReceiptSerializer
+    lookup_url_kwarg = 'receipt'
+
+    def put(self, request):
+        receiptId = request.GET.get(self.lookup_url_kwarg)
+        try:
+            receipt = Receipt.objects.get(pk=receiptId)
+        except Receipt.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        receiptData = json.loads(request.body)
+        del receiptData['items']
+        serializer = self.serializer_class(receipt, data=receiptData)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        print(receiptData)
+        print(serializer.errors)
+        return Response({'Message' : 'Invalid Receipt', 'Errors': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)            
 
 
 

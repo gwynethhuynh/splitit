@@ -14,6 +14,11 @@ class ReceiptSerializer(serializers.ModelSerializer):
         model = Receipt
         fields = ('id', 'tax', 'total', 'items')
 
+class PutReceiptSerializer(serializers.ModelSerializer):
+    class Meta: 
+        model = Receipt
+        fields = ('id', 'tax', 'total')
+
 class CreateReceiptSerializer(serializers.ModelSerializer):
     items = ItemSerializer(many=True)
 
