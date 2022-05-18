@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework import generics, status
-from .models import Receipt, Item
-from .serializers import ItemSerializer, ReceiptSerializer, CreateReceiptSerializer, PutReceiptSerializer
+from .models import Receipt
+from .serializers import ReceiptSerializer
 from .receipt_parser import ReceiptParser
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -35,8 +35,9 @@ class GetReceiptView(APIView):
 
 
 class PutReceiptView(APIView):
-    serializer_class = PutReceiptSerializer
+    serializer_class = ReceiptSerializer
     lookup_url_kwarg = 'receipt'
+    
 
     def put(self, request):
         receiptId = request.GET.get(self.lookup_url_kwarg)
@@ -45,19 +46,20 @@ class PutReceiptView(APIView):
         except Receipt.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         receiptData = json.loads(request.body)
-        del receiptData['items']
+        print(receiptData)
+        # del receiptData['items']
         serializer = self.serializer_class(receipt, data=receiptData)
+        print("----> created serializer")
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
-        print(receiptData)
         print(serializer.errors)
         return Response({'Message' : 'Invalid Receipt', 'Errors': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)            
 
 
 
 class CreateReceiptView(APIView):
-    serializer_class = CreateReceiptSerializer
+    serializer_class = ReceiptSerializer
 
      # @Override
     def post(self, request, format=None):
