@@ -27,6 +27,7 @@ class ReceiptItemsPage extends Component {
         }
         this.receiptId = this.props.params.receiptId;
         this.getReceiptDetails();
+        this.calculatePayerAmounts = this.calculatePayerAmounts.bind(this);
     }
 
     getReceiptDetails() {
@@ -34,7 +35,7 @@ class ReceiptItemsPage extends Component {
             .get('/api/get-receipt' + '?receipt=' + this.receiptId)
             .then((response) => {
                 let payers = response.data.items.map(() => "Kai, Jane");
-                let payerAmounts = this.calculatePayerAmounts(payers, response.data.items);
+                let payerAmounts = this.calculatePayerAmounts(payers, response.data.items, response.data.tax);
                 this.setState({
                     items: response.data.items,
                     tax: response.data.tax,
@@ -76,18 +77,36 @@ class ReceiptItemsPage extends Component {
     updateDishPrice = (index, price) => {
         let newItems = JSON.parse(JSON.stringify(this.state.items));
         newItems[index].price = price;
-        let payerAmounts = this.calculatePayerAmounts(this.state.payers, newItems);
+        let payerAmounts = this.calculatePayerAmounts(this.state.payers, newItems, this.state.tax);
+        this.updateTotal(payerAmounts);
         this.setState({items: newItems, payerAmounts: payerAmounts});
     }
 
     updatePayers = (index, payers) => {
         let newPayers = JSON.parse(JSON.stringify(this.state.payers));
         newPayers[index] = payers;
-        let payerAmounts = this.calculatePayerAmounts(newPayers, this.state.items);
+        let payerAmounts = this.calculatePayerAmounts(newPayers, this.state.items, this.state.tax);
+        this.updateTotal(payerAmounts);
         this.setState({payers: newPayers, payerAmounts: payerAmounts});
     }
 
-    calculatePayerAmounts = (payers, items) => {
+    updateTax = (tax) => {
+        let payerAmounts = this.calculatePayerAmounts(this.state.payers, this.state.items, tax);
+        this.updateTotal(payerAmounts);
+        this.setState({tax: tax, payerAmounts: payerAmounts});
+        
+    }
+
+    updateTotal = (payerAmounts) => {
+        let total = currency(0);
+        for (let [_, amountOwed] of Object.entries(payerAmounts)) {
+            total = total.add(amountOwed);
+            console.log(total);
+        }
+        this.setState({total: total.value})
+    }
+
+    calculatePayerAmounts = (payers, items, tax) => {
         let payerAmounts = {};
         for(let i in items) {
             let item = items[i];
@@ -100,6 +119,20 @@ class ReceiptItemsPage extends Component {
                 }
                 payerAmounts[payer] = payerAmounts[payer].add(priceDistributed[j]);
             }
+        }
+        let subtotal = currency(0);
+        for (let item of items) {
+            subtotal = subtotal.add(currency(item.price));
+        }
+        console.log("subtotal: ", subtotal.value)
+        for (let [payer, amountOwed] of Object.entries(payerAmounts)) {
+            console.log("~~~~~~~~~~", amountOwed.value / subtotal.value, amountOwed.value, subtotal.value );
+            let taxDistributed = currency(tax).multiply(amountOwed.value / subtotal.value);
+            /* TODO: consider uneven division/ remainder */
+            console.log("--------->", taxDistributed.value);
+            payerAmounts[payer] = payerAmounts[payer].add(taxDistributed.value);
+            console.log(payer, amountOwed.value);
+            console.log(payer, payerAmounts[payer].value);
         }
         return payerAmounts;
     }
@@ -162,7 +195,7 @@ class ReceiptItemsPage extends Component {
                                 label="Tax" 
                                 variant="outlined" 
                                 value={this.state.tax}
-                                onChange ={(e) => this.setState({tax: e.target.value})}
+                                onChange ={(e) => this.updateTax(e.target.value)}
                             />
                         </Grid>
                         <Grid item xs={12} align="center">
