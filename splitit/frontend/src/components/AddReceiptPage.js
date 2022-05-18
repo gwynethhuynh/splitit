@@ -12,7 +12,24 @@ import axios from "axios";
 axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
 axios.defaults.xsrfCookieName = "csrftoken";
 
-export default class AddReceiptPage extends Component {
+import { useNavigate } from 'react-router-dom';
+
+const withRouter = (Component) => {
+  const Wrapper = (props) => {
+    const navigate = useNavigate();
+    
+    return (
+      <Component
+        navigate={navigate}
+        {...props}
+        />
+    );
+  };
+  
+  return Wrapper;
+};
+
+class AddReceiptPage extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -42,7 +59,10 @@ export default class AddReceiptPage extends Component {
         console.log(formData);
         axios
           .post("/api/create/", formData)
-          .then((res) => console.log(res))
+          .then((res) => {
+              // redirect to new receipt's page
+              this.props.navigate('/receipts/' + res.data.id);
+            })
           .catch((err) => console.log(err));
     };
 
@@ -106,3 +126,5 @@ export default class AddReceiptPage extends Component {
     }
 
 }
+
+export default withRouter(AddReceiptPage);
