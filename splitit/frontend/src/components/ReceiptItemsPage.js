@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { render } from "react-dom";
 import { useParams } from 'react-router-dom';
 import axios from "axios";
+import currency from "currency.js";
 axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
 axios.defaults.xsrfCookieName = "csrftoken";
 import {Grid, TextField, Typography, Button } from "@material-ui/core";
@@ -20,6 +21,8 @@ class ReceiptItemsPage extends Component {
             items: [],
             tax: 0,
             total: 0,
+            payers: [],
+            payerAmounts: {},
 
         }
         this.receiptId = this.props.params.receiptId;
@@ -30,11 +33,16 @@ class ReceiptItemsPage extends Component {
         axios
             .get('/api/get-receipt' + '?receipt=' + this.receiptId)
             .then((response) => {
+                let payers = response.data.items.map(() => "Kai, Jane");
+                let payerAmounts = this.calculatePayerAmounts(payers, response.data.items);
                 this.setState({
                     items: response.data.items,
                     tax: response.data.tax,
                     total: response.data.total,
+                    payers: payers,
+                    payerAmounts: payerAmounts,
                 });
+                console.log(payers);
                 console.log(response);
             });
 
@@ -68,10 +76,33 @@ class ReceiptItemsPage extends Component {
     updateDishPrice = (index, price) => {
         let newItems = JSON.parse(JSON.stringify(this.state.items));
         newItems[index].price = price;
-        this.setState({items: newItems});
+        let payerAmounts = this.calculatePayerAmounts(this.state.payers, newItems);
+        this.setState({items: newItems, payerAmounts: payerAmounts});
     }
 
+    updatePayers = (index, payers) => {
+        let newPayers = JSON.parse(JSON.stringify(this.state.payers));
+        newPayers[index] = payers;
+        let payerAmounts = this.calculatePayerAmounts(newPayers, this.state.items);
+        this.setState({payers: newPayers, payerAmounts: payerAmounts});
+    }
 
+    calculatePayerAmounts = (payers, items) => {
+        let payerAmounts = {};
+        for(let i in items) {
+            let item = items[i];
+            let payers_i = payers[i].split(/,[ ]*/);
+            let priceDistributed = currency(item.price).distribute(payers_i.length);
+            for(let j in payers_i) {
+                let payer = payers_i[j];
+                if (!(payer in payerAmounts)) {
+                    payerAmounts[payer] = currency(0);
+                }
+                payerAmounts[payer] = payerAmounts[payer].add(priceDistributed[j]);
+            }
+        }
+        return payerAmounts;
+    }
     
 
     render() {
@@ -91,7 +122,7 @@ class ReceiptItemsPage extends Component {
                             <Grid item xs={12} align="center">
                                 <Grid container>
                                     <Grid item xs={12} align="center">
-                                        <Typography key={name} gutterBottom> Dish {name} costs {price}.</Typography> 
+                                        <Typography key={name} gutterBottom> Dish {name} costs {price} and will be paid by {this.state.payers[index]}.</Typography> 
                                     </Grid>
                                     <Grid item xs={12} align="center">
                                         <TextField 
@@ -109,6 +140,13 @@ class ReceiptItemsPage extends Component {
                                             type="number"
                                             /* TODO: Restrict input to 2 decimal places */
                                             onChange ={(e) => this.updateDishPrice(index, e.target.value)}
+                                        />
+                                        <TextField 
+                                            required
+                                            label="Payers"
+                                            variant="outlined"
+                                            defaultValue={this.state.payers[index]}
+                                            onChange ={(e) => this.updatePayers(index, e.target.value)}
                                         />
                                     </Grid>   
                                 </Grid>
@@ -147,6 +185,11 @@ class ReceiptItemsPage extends Component {
                            Update 
                         </Button>
                     </form>
+                    <Grid item xs={12}>
+                        {Object.keys(this.state.payerAmounts).map((key) => {
+                            return <p>{ key + ": " + this.state.payerAmounts[key].format() }</p>
+                        })}
+                    </Grid>
                 </Grid>
             </Grid>
             // <div>
