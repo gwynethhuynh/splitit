@@ -220,7 +220,7 @@ class ReceiptItemsPage extends Component {
                     </form>
                     <Grid item xs={12}>
                         {Object.keys(this.state.payerAmounts).map((key) => {
-                            return <p>{ key + ": " + this.state.payerAmounts[key].format() }</p>
+                            return <p>{ key + ": " + this.state.payerAmounts[key].value }</p>
                         })}
                     </Grid>
                 </Grid>
