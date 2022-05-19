@@ -16,7 +16,7 @@ class ReceiptSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Receipt
-        fields = ('id', 'tax', 'total', 'items')
+        fields = ('id', 'tax', 'total', 'items', 'tip')
 
     def create(self, validated_data):
         print("Hello ================>")
@@ -35,6 +35,7 @@ class ReceiptSerializer(serializers.ModelSerializer):
         print(items_data)
         receipt.tax = validated_data.get("tax", receipt.tax)
         receipt.total = validated_data.get("total", receipt.total)
+        receipt.tip = validated_data.get("tip", receipt.tip)
         receipt.save()
         print("---> update complete")
         

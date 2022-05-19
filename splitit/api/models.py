@@ -5,6 +5,7 @@ from django.db import models
 class Receipt(models.Model):
     tax = models.DecimalField(max_digits=6, decimal_places=2)
     total = models.DecimalField(max_digits=6, decimal_places=2)
+    tip = models.DecimalField(max_digits=6, decimal_places=2, default=0, editable=True)
     def _str_(self):
         return self.id   
 

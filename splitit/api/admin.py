@@ -2,7 +2,7 @@ from django.contrib import admin
 from .models import  Receipt, Item
 
 class ReceiptAdmin(admin.ModelAdmin):
-    list_display = ('id', 'tax', 'total')
+    list_display = ('id', 'tax', 'total', 'tip')
 
 class ItemAdmin(admin.ModelAdmin):
     list_display = ('name', 'price', 'receipt')

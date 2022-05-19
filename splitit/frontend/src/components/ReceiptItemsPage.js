@@ -20,6 +20,7 @@ class ReceiptItemsPage extends Component {
         this.state = {
             items: [],
             tax: 0,
+            tip: 0,
             total: 0,
             payers: [],
             payerAmounts: {},
@@ -39,6 +40,7 @@ class ReceiptItemsPage extends Component {
                 this.setState({
                     items: response.data.items,
                     tax: response.data.tax,
+                    tip: response.data.tip,
                     total: response.data.total,
                     payers: payers,
                     payerAmounts: payerAmounts,
@@ -57,6 +59,7 @@ class ReceiptItemsPage extends Component {
             items: this.state.items,
             tax: this.state.tax,
             total: this.state.total,
+            tip: this.state.tip,
         }
         axios
             .put('/api/put-receipt/' + '?receipt=' + this.receiptId, data)
@@ -77,7 +80,7 @@ class ReceiptItemsPage extends Component {
     updateDishPrice = (index, price) => {
         let newItems = JSON.parse(JSON.stringify(this.state.items));
         newItems[index].price = price;
-        let payerAmounts = this.calculatePayerAmounts(this.state.payers, newItems, this.state.tax);
+        let payerAmounts = this.calculatePayerAmounts(this.state.payers, newItems, this.state.tax, this.state.tip);
         this.updateTotal(payerAmounts);
         this.setState({items: newItems, payerAmounts: payerAmounts});
     }
@@ -85,16 +88,22 @@ class ReceiptItemsPage extends Component {
     updatePayers = (index, payers) => {
         let newPayers = JSON.parse(JSON.stringify(this.state.payers));
         newPayers[index] = payers;
-        let payerAmounts = this.calculatePayerAmounts(newPayers, this.state.items, this.state.tax);
+        let payerAmounts = this.calculatePayerAmounts(newPayers, this.state.items, this.state.tax, this.state.tip);
         this.updateTotal(payerAmounts);
         this.setState({payers: newPayers, payerAmounts: payerAmounts});
     }
 
     updateTax = (tax) => {
-        let payerAmounts = this.calculatePayerAmounts(this.state.payers, this.state.items, tax);
+        let payerAmounts = this.calculatePayerAmounts(this.state.payers, this.state.items, tax, this.state.tip);
         this.updateTotal(payerAmounts);
         this.setState({tax: tax, payerAmounts: payerAmounts});
         
+    }
+
+    updateTip = (tip) => {
+        let payerAmounts = this.calculatePayerAmounts(this.state.payers, this.state.items, this.state.tax, tip);
+        this.updateTotal(payerAmounts);
+        this.setState({tip: tip, payerAmounts: payerAmounts});
     }
 
     updateTotal = (payerAmounts) => {
@@ -106,7 +115,7 @@ class ReceiptItemsPage extends Component {
         this.setState({total: total.value})
     }
 
-    calculatePayerAmounts = (payers, items, tax) => {
+    calculatePayerAmounts = (payers, items, tax, tip) => {
         let payerAmounts = {};
         for(let i in items) {
             let item = items[i];
@@ -126,11 +135,12 @@ class ReceiptItemsPage extends Component {
         }
         console.log("subtotal: ", subtotal.value)
         for (let [payer, amountOwed] of Object.entries(payerAmounts)) {
-            console.log("~~~~~~~~~~", amountOwed.value / subtotal.value, amountOwed.value, subtotal.value );
-            let taxDistributed = currency(tax).multiply(amountOwed.value / subtotal.value);
+            let payerPercentage = amountOwed.value / subtotal.value;
+            let taxDistributed = currency(tax).multiply(payerPercentage);
+            let tipDistributed = currency(tip).multiply(payerPercentage);
             /* TODO: consider uneven division/ remainder */
             console.log("--------->", taxDistributed.value);
-            payerAmounts[payer] = payerAmounts[payer].add(taxDistributed.value);
+            payerAmounts[payer] = payerAmounts[payer].add(taxDistributed.value + tipDistributed.value);
             console.log(payer, amountOwed.value);
             console.log(payer, payerAmounts[payer].value);
         }
@@ -196,6 +206,18 @@ class ReceiptItemsPage extends Component {
                                 variant="outlined" 
                                 value={this.state.tax}
                                 onChange ={(e) => this.updateTax(e.target.value)}
+                            />
+                        </Grid>
+                        <Grid item xs={12} align="center">
+                            <Typography>
+                            Tip: {this.state.tip}
+                            </Typography>
+                            <TextField 
+                                required
+                                label="Tip"
+                                variant="outlined" 
+                                value={this.state.tip}
+                                onChange ={(e) => this.updateTip(e.target.value)}
                             />
                         </Grid>
                         <Grid item xs={12} align="center">
